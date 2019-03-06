@@ -142,7 +142,7 @@ class IoAdapterPy(IoAdapterBase):
             selectOrder (list of category names, optional): Write only data categories on this list.
 
             columnAlignFlag (bool, optional): Format the output in aligned columns (default=True) (Native Python Only)
-            useStopTokens (bool, optional): Include terminating 'stop_' tokens at the end of mmCIF categories (loop_'s) (Native Python only)
+            useStopTokens (bool, optional): Include terminating 'stop\_' tokens at the end of mmCIF categories (loop\_'s) (Native Python only)
             formattingStep (int, optional): The number row samples within each category used to estimate maximum column width for data alignment (Native Python only)
             **kwargs: Placeholder for unsupported key value pairs
 

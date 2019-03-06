@@ -121,9 +121,9 @@ class PdbxReader(object):
 
            on return: (reserved word, state)
            where -
-              reserved word -  is one of CIF syntax elements:
-                               data, loop, global, save, or stop
-              state - the parser state required to process this next section.
+            * reserved word - is one of CIF syntax elements: data, loop, global, 
+              save, or stop
+            * state - the parser state required to process this next section.
 
         """
         i = inWord.find("_")

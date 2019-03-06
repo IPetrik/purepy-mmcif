@@ -2,8 +2,7 @@
 
 ### Introduction
 
-This module includes a native Python mmCIF API for data files and dictionaries along with
-[pybind11](https://github.com/pybind/pybind11) wrappers for the PDB C++ Core mmCIF Library.
+This module includes a native Python mmCIF API for data files.
 
 ### Installation
 
@@ -11,13 +10,11 @@ Download the library source software from the project repository:
 
 ```bash
 
-git clone  --recurse-submodules  https://github.com/rcsb/py-mmcif.git
+git clone  --recurse-submodules  https://github.com/ipetrik/purepy-mmcif.git
 
 ```
 
-Optionally, run test suite using the Tox test runner. The C++ library bindings have been tested
-on Centos 7 Linux with GCC/G++ 4.8.5 and MacOS with clang-900.0.39.2 using Python versions 2.7.14,
-3.6.6, and 3.7.0
+Optionally, run test suite using the Tox test runner. 
 
 ```bash
 tox
