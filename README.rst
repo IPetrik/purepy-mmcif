@@ -1,5 +1,9 @@
 .. image:: https://travis-ci.com/IPetrik/purepy-mmcif.svg?branch=master
     :target: https://travis-ci.com/IPetrik/purepy-mmcif
+.. image:: https://coveralls.io/repos/github/IPetrik/purepy-mmcif/badge.svg?branch=master
+    :target: https://coveralls.io/github/IPetrik/purepy-mmcif?branch=master
+
+Tested on Python 3.6, 3.7, and 2.7 (deprecated)
 
 mmCIF Core Access Library
 =========================
