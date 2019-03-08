@@ -1,319 +1,129 @@
-##
-#
-# File:    IoAdapterPyTests.py
-# Author:  J. Westbrook
-# Date:    01-Aug-2017
-# Version: 0.001
-#
-# Updates:
-#   2-Oct-2017 jdw  adjust block count on dictionary test
-#   4-Oct-2017 jdw  verified the package IoAdapter default preference works.
-#   7-Dec-2017 jdw  path all output files
-##
 """
 Test cases for reading and updating PDBx data files using Python Wrapper
 IoAdapterCore wrapper which provides an API to the C++ CifFile class
 library of file and dictionary tools that is conforms to our Native
 Python library.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-import logging
-import os
-import sys
-import time
-import unittest
-
-HERE = os.path.abspath(os.path.dirname(__file__))
-TOPDIR = os.path.dirname(os.path.dirname(HERE))
+import pytest
 
 try:
-    from mmcif import __version__
-except Exception as e:
-    sys.path.insert(0, TOPDIR)
-    from mmcif import __version__
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 
 from mmcif.io.IoAdapterPy import IoAdapterPy as IoAdapter
 from mmcif.io.PdbxReader import PdbxError, SyntaxError
 
 __docformat__ = "restructuredtext en"
-__author__ = "John Westbrook"
-__email__ = "john.westbrook@rcsb.org"
+__author__ = "Igor Petrik"
+__email__ = "petrikigor@gmail.com"
 __license__ = "Apache 2.0"
 
+class TestIoAdapter():
+    __slots__ = ()
+    
+    @pytest.fixture(scope = 'class')
+    def io_data(self, test_files, in_tmpdir):
+        inputs = {}
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s]-%(module)s.%(funcName)s: %(message)s')
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-
-class IoAdapterTests(unittest.TestCase):
-
-    def setUp(self):
-        self.__lfh = sys.stdout
-        self.__verbose = True
+        inputs['pathPdbxDataFile'] = test_files / "1kip.cif"
+        inputs['pathBigPdbxDataFile'] = test_files / "1ffk.cif.gz"
+        inputs['pathPdbxDictFile'] = test_files / "mmcif_pdbx_v5_next.dic"
+        inputs['testBlockCount'] = 7350
+        inputs['pathErrPdbxDataFile'] = test_files / "1bna-errors.cif"
+        inputs['pathQuotesPdbxDataFile'] = test_files / "specialTestFile.cif"
         #
-        self.__pathPdbxDataFile = os.path.join(HERE, "data", "1kip.cif")
-        self.__pathBigPdbxDataFile = os.path.join(HERE, "data", "1ffk.cif.gz")
-        self.__pathPdbxDictFile = os.path.join(HERE, "data", "mmcif_pdbx_v5_next.dic")
-        self.__testBlockCount = 7350
-        self.__pathErrPdbxDataFile = os.path.join(HERE, "data", "1bna-errors.cif")
-        self.__pathQuotesPdbxDataFile = os.path.join(HERE, "data", "specialTestFile.cif")
+        inputs['pathOutputPdbxFile'] = Path("myPdbxOutputFile.cif")
+        inputs['pathOutputPdbxFileSelect'] = Path("myPdbxOutputFileSelect.cif")
+        inputs['pathOutputPdbxFileExclude'] = Path("myPdbxOutputFileExclude.cif")
         #
-        self.__pathOutputPdbxFile = os.path.join(HERE, "test-output", "myPdbxOutputFile.cif")
-        self.__pathOutputPdbxFileSelect = os.path.join(HERE, "test-output", "myPdbxOutputFileSelect.cif")
-        self.__pathOutputPdbxFileExclude = os.path.join(HERE, "test-output", "myPdbxOutputFileExclude.cif")
+        inputs['pathQuotesOutputPdbxFile'] = Path("myPdbxQuotesOutputFile.cif")
+        inputs['pathBigOutputDictFile'] = Path("myDictOutputFile.cif")
+
+        inputs['pathMissingFile'] = test_files / "unicode-test-missing.cif"
         #
-        self.__pathQuotesOutputPdbxFile = os.path.join(HERE, "test-output", "myPdbxQuotesOutputFile.cif")
-        self.__pathBigOutputDictFile = os.path.join(HERE, "test-output", "myDictOutputFile.cif")
+        inputs['pathUnicodePdbxFile'] = test_files / "unicode-test.cif"
+        inputs['pathCharRefPdbxFile'] = test_files / "unicode-char-ref-test.cif"
         #
-        self.__pathUnicodePdbxFile = os.path.join(HERE, "data", "unicode-test.cif")
-        self.__pathCharRefPdbxFile = os.path.join(HERE, "data", "unicode-char-ref-test.cif")
-        #
-        self.__pathOutputUnicodePdbxFile = os.path.join(HERE, "test-output", "out-unicode-test.cif")
-        self.__pathOutputCharRefPdbxFile = os.path.join(HERE, "test-output", "out-unicode-char-ref-test.cif")
+        inputs['pathOutputUnicodePdbxFile'] = Path("out-unicode-test.cif")
+        inputs['pathOutputCharRefPdbxFile'] = Path("out-unicode-char-ref-test.cif")
 
-        self.__pathOutputDir = os.path.join(HERE, "test-output")
-        self.__startTime = time.time()
-        logger.debug("Running tests on version %s" % __version__)
-        logger.debug("Starting %s at %s" % (self.id(),
-                                            time.strftime("%Y %m %d %H:%M:%S", time.localtime())))
+        inputs['pathOutputDir'] = Path()
+        
+        return inputs
 
-    def tearDown(self):
-        endTime = time.time()
-        logger.debug("Completed %s at %s (%.4f seconds)\n" % (self.id(),
-                                                              time.strftime("%Y %m %d %H:%M:%S", time.localtime()),
-                                                              endTime - self.__startTime))
-
-    def testFileReaderUtf8(self):
-        self.__testFileReader(self.__pathPdbxDataFile, enforceAscii=False)
-
-    def testFileReaderBigUtf8(self):
-        self.__testFileReader(self.__pathBigPdbxDataFile, enforceAscii=False)
-
-    def testFileReaderQuotesUtf8(self):
-        self.__testFileReader(self.__pathQuotesPdbxDataFile, enforceAscii=False)
-
-    def testFileReaderUnicodeUtf8(self):
-        self.__testFileReader(self.__pathUnicodePdbxFile, enforceAscii=False)
-
-    def testFileReaderAscii(self):
-        self.__testFileReader(self.__pathPdbxDataFile, enforceAscii=True)
-
-    def testFileReaderBigAscii(self):
-        self.__testFileReader(self.__pathBigPdbxDataFile, enforceAscii=True)
-
-    def testFileReaderQuotesAscii(self):
-        self.__testFileReader(self.__pathQuotesPdbxDataFile, enforceAscii=True)
-
-    def __testFileReader(self, fp, enforceAscii=False):
-        """Test case -  read PDBx file
-        """
-        try:
-            io = IoAdapter(raiseExceptions=True)
-            containerList = io.readFile(fp, enforceAscii=enforceAscii, outDirPath=self.__pathOutputDir)
-            logger.debug("Read %d data blocks" % len(containerList))
-            self.assertEqual(len(containerList), 1)
-        except Exception as e:
-            logger.exception("Failing with %s" % str(e))
-            self.fail()
-
-    def testDictReaderUtf8(self):
-        self.__testDictReader(self.__pathPdbxDictFile, enforceAscii=False)
-
-    def testDictReaderAscii(self):
-        self.__testDictReader(self.__pathPdbxDictFile, enforceAscii=False)
-
-    def __testDictReader(self, fp, enforceAscii=False):
-        """Test case -  read PDBx dictionary file
-        """
-        try:
-            io = IoAdapter(raiseExceptions=True)
-            containerList = io.readFile(fp, enforceAscii=enforceAscii, outDirPath=self.__pathOutputDir)
-            logger.debug("Read %d data blocks" % len(containerList))
-            self.assertTrue(len(containerList) > self.__testBlockCount)
-        except Exception as e:
-            logger.exception("Failing with %s" % str(e))
-            self.fail()
-
-    #
-    def testFileWIthSyntaxErrorHander1(self):
-        self.__testFileReaderExceptionHandler1(self.__pathErrPdbxDataFile, enforceAscii=False)
-
-    def testFileWIthSyntaxErrorHander2(self):
-        self.__testFileReaderExceptionHandler1(self.__pathErrPdbxDataFile, enforceAscii=False)
-
-    def testFileWIthUnicodeErrorHander2(self):
-        self.__testFileReaderExceptionHandler2(self.__pathUnicodePdbxFile, enforceAscii=True, readEncodingErrors=None)
-
-    def __testFileReaderExceptionHandler1(self, fp, enforceAscii=False):
-        """Test case -  read selected categories from PDBx file and handle exceptions
-        """
+    @pytest.mark.parametrize('fp_key, enforceAscii',
+                             [('pathPdbxDataFile', False), 
+                              ('pathBigPdbxDataFile', False), 
+                              ('pathQuotesPdbxDataFile', False), 
+                              ('pathUnicodePdbxFile', False), 
+                              ('pathPdbxDataFile', True), 
+                              ('pathBigPdbxDataFile', True), 
+                              ('pathQuotesPdbxDataFile', True)])
+    def testFileReader(self, io_data, fp_key, enforceAscii):
         io = IoAdapter(raiseExceptions=True)
-        self.assertRaises(SyntaxError, io.readFile, fp, enforceAscii=enforceAscii, outDirPath=self.__pathOutputDir)
+        containerList = io.readFile(io_data[fp_key], 
+                                    enforceAscii=enforceAscii, 
+                                    outDirPath=io_data['pathOutputDir'])
+        print ("Read %d data blocks" % len(containerList))
+        assert len(containerList) == 1
 
-    def __testFileReaderExceptionHandler2(self, fp, enforceAscii=False, readEncodingErrors='ignore'):
-        """Test case -  read selected categories from PDBx and handle exceptions
-        """
-        try:
-            io = IoAdapter(raiseExceptions=True, readEncodingErrors=readEncodingErrors)
-            containerList = io.readFile(fp, enforceAscii=enforceAscii, outDirPath=self.__pathOutputDir)
-            logger.debug("Containerlist length %d " % len(containerList))
-            #
-        except SyntaxError as e:
-            logger.debug("Expected syntax failure")
-            self.assertTrue(True)
-        except PdbxError as e:
-            logger.debug("Expected character encoding failure")
-            self.assertTrue(True)
-        except Exception as e:
-            logger.exception("Unexpected exception %s " % type(e).__name__)
-            self.fail('Unexpected exception raised: ' + str(e))
-        else:
-            self.fail('Expected exception not raised')
+    @pytest.mark.parametrize('fp_key', 
+                             ['pathPdbxDictFile', 'pathPdbxDictFile'])
+    def test_dict_reader(self, io_data, fp_key):
+        io = IoAdapter(raiseExceptions=True)
+        containerList = io.readFile(io_data[fp_key], enforceAscii=False, 
+                                    outDirPath=io_data['pathOutputDir'])
+        print("Read %d data blocks" % len(containerList))
+        assert len(containerList) > io_data['testBlockCount']
 
-    def testFileReaderWriter(self):
-        self.__testFileReaderWriter(self.__pathBigPdbxDataFile, self.__pathOutputPdbxFile)
+    @pytest.mark.parametrize('fp_key', 
+                             ['pathErrPdbxDataFile', 'pathErrPdbxDataFile'])
+    def test_file_reader_exception_handler_1(self, io_data, fp_key):
+        io = IoAdapter(raiseExceptions=True)
+        print (io_data)
+        with pytest.raises(SyntaxError):
+            io.readFile(io_data[fp_key], enforceAscii=False, 
+                        outDirPath=io_data['pathOutputDir'])
 
-    def testDictReaderWriter(self):
-        self.__testFileReaderWriter(self.__pathPdbxDictFile, self.__pathBigOutputDictFile)
+    @pytest.mark.parametrize('fp_key, expected_exc, enforceAscii', 
+                             [('pathMissingFile', PdbxError, True),])
+    def test_file_reader_exception_handler_2(self, io_data, fp_key, expected_exc, 
+                                        enforceAscii):
+        with pytest.raises(expected_exc):
+            io = IoAdapter(raiseExceptions=True, readEncodingErrors='ignore')
+            containerList = io.readFile(io_data[fp_key], 
+                                        enforceAscii=enforceAscii, 
+                                        outDirPath=io_data['pathOutputDir'])
+            print ("Containerlist length %d " % len(containerList))
 
-    def testFileReaderWriterQuotes(self):
-        self.__testFileReaderWriter(self.__pathQuotesPdbxDataFile, self.__pathQuotesOutputPdbxFile)
+    @pytest.mark.parametrize('ifp_key, ofp_key, enforceAscii', 
+                             [('pathBigPdbxDataFile', 'pathOutputPdbxFile', True),
+                              ('pathPdbxDictFile', 'pathBigOutputDictFile', True), 
+                              ('pathQuotesPdbxDataFile', 'pathQuotesOutputPdbxFile', True), 
+                              ('pathUnicodePdbxFile', 'pathOutputUnicodePdbxFile', False), 
+                              ('pathCharRefPdbxFile', 'pathOutputCharRefPdbxFile', False)])
+    def test_file_reader_writer(self, io_data, ifp_key, ofp_key, enforceAscii):
+        io = IoAdapter(raiseExceptions=True, useCharRefs=enforceAscii)
+        containerList = io.readFile(io_data[ifp_key])
+        print ("Read %d data blocks" % len(containerList))
+        ok = io.writeFile(io_data[ofp_key], containerList=containerList, 
+                          enforceAscii=enforceAscii)
+        assert ok
 
-    #
-    def testFileReaderWriterUnicode(self):
-        self.__testFileReaderWriter(self.__pathUnicodePdbxFile, self.__pathOutputUnicodePdbxFile, enforceAscii=False)
+    @pytest.mark.parametrize('ifp_key, ofp_key, selectList, excludeFlag',
+                              [('pathBigPdbxDataFile', 'pathOutputPdbxFileSelect', ['atom_site'], False), 
+                                ('pathBigPdbxDataFile', 'pathOutputPdbxFileExclude', ['atom_site'], True)])
+    def test_file_reader_writer_select(self, io_data, ifp_key, ofp_key, selectList, excludeFlag):
+        io = IoAdapter(raiseExceptions=False, useCharRefs=True)
+        containerList = io.readFile(io_data[ifp_key], enforceAscii=True, 
+                                    selectList=selectList, 
+                                    excludeFlag=excludeFlag, 
+                                    outDirPath=io_data['pathOutputDir'])
+        print ("Read %d data blocks" % len(containerList))
+        ok = io.writeFile(io_data[ofp_key], containerList=containerList, 
+                          enforceAscii=True)
+        assert ok
 
-    def testFileReaderWriterCharRef(self):
-        self.__testFileReaderWriter(self.__pathCharRefPdbxFile, self.__pathOutputCharRefPdbxFile, enforceAscii=False)
-
-    def __testFileReaderWriter(self, ifp, ofp, **kwargs):
-        """Test case -  read and then write PDBx file or dictionary
-        """
-        try:
-            enforceAscii = kwargs.get('enforceAscii', True)
-            useCharRefs = True if enforceAscii else False
-            io = IoAdapter(raiseExceptions=True, useCharRefs=useCharRefs)
-            containerList = io.readFile(ifp)
-            logger.debug("Read %d data blocks" % len(containerList))
-            ok = io.writeFile(ofp, containerList=containerList, **kwargs)
-            self.assertTrue(ok)
-        except Exception as e:
-            logger.exception("Failing with %s" % str(e))
-            self.fail()
-
-    def testFileReaderWriterSelect(self):
-        self.__testFileReaderWriterSelect(self.__pathBigPdbxDataFile, self.__pathOutputPdbxFileSelect, selectList=['atom_site'])
-
-    def testFileReaderWriterExclude(self):
-        self.__testFileReaderWriterSelect(self.__pathBigPdbxDataFile, self.__pathOutputPdbxFileExclude, selectList=['atom_site'], excludeFlag=True)
-
-    def __testFileReaderWriterSelect(self, ifp, ofp, selectList=None, excludeFlag=False):
-        """Test case -  read and then write PDBx file with selection.
-        """
-        try:
-            io = IoAdapter(raiseExceptions=False, useCharRefs=True)
-            containerList = io.readFile(ifp, enforceAscii=True, selectList=selectList, excludeFlag=excludeFlag, outDirPath=self.__pathOutputDir)
-            logger.debug("Read %d data blocks" % len(containerList))
-            ok = io.writeFile(ofp, containerList=containerList, enforceAscii=True)
-            self.assertTrue(ok)
-        except Exception as e:
-            logger.exception("Failing input %s and output %s with %s" % (ifp, ofp, str(e)))
-            self.fail()
-
-
-def suiteFileReaderRaw():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testFileReaderUtf8"))
-    suiteSelect.addTest(IoAdapterTests("testFileReaderBigUtf8"))
-    suiteSelect.addTest(IoAdapterTests("testFileReaderQuotesUtf8"))
-    return suiteSelect
-
-
-def suiteFileReaderAscii():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testFileReaderAscii"))
-    suiteSelect.addTest(IoAdapterTests("testFileReaderBigAscii"))
-    suiteSelect.addTest(IoAdapterTests("testFileReaderQuotesAscii"))
-    return suiteSelect
-
-
-def suiteFileReaderExceptions():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testFileWIthSyntaxErrorHander1"))
-    suiteSelect.addTest(IoAdapterTests("testFileWIthSyntaxErrorHander2"))
-    #
-    suiteSelect.addTest(IoAdapterTests("testFileWIthUnicodeErrorHander2"))
-    return suiteSelect
-
-
-def suiteDictReader():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testDictReaderAscii"))
-    suiteSelect.addTest(IoAdapterTests("testDictReaderUtf8"))
-    return suiteSelect
-
-
-def suiteReaderUnicode():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testFileReaderUnicodeUtf8"))
-    return suiteSelect
-
-
-def suiteReaderWriter():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testFileReaderWriter"))
-    suiteSelect.addTest(IoAdapterTests("testDictReaderWriter"))
-    return suiteSelect
-
-
-def suiteReaderWriterSelect():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testFileReaderWriterSelect"))
-    suiteSelect.addTest(IoAdapterTests("testFileReaderWriterExclude"))
-    return suiteSelect
-
-
-def suiteReaderWriterUnicode():
-    suiteSelect = unittest.TestSuite()
-    suiteSelect.addTest(IoAdapterTests("testFileReaderWriterCharRef"))
-    suiteSelect.addTest(IoAdapterTests("testFileReaderWriterUnicode"))
-    return suiteSelect
-
-
-if __name__ == '__main__':
-    #
-    if True:
-        if (True):
-            mySuite = suiteFileReaderRaw()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-
-        if (True):
-            mySuite = suiteFileReaderAscii()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-
-        if (True):
-            mySuite = suiteDictReader()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-
-        if (True):
-            mySuite = suiteFileReaderExceptions()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-
-        if (True):
-            mySuite = suiteReaderUnicode()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-
-        if (True):
-            mySuite = suiteReaderWriter()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-
-        if (True):
-            mySuite = suiteReaderWriterUnicode()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-
-        if (True):
-            mySuite = suiteReaderWriterSelect()
-            unittest.TextTestRunner(verbosity=2, descriptions=False).run(mySuite)
-    #
