@@ -27,7 +27,7 @@ class TestDictionary2DDLm():
 
     def test_gen_ddlm(self, in_tmpdir, test_files):
         myIo = IoAdapterPy()
-        containerList = myIo.readFile(inputFilePath=test_files / 'mmcif_pdbx_v5_next.dic')
+        containerList = myIo.readFile(inputFilePath=str(test_files / 'mmcif_pdbx_v5_next.dic'))
         dApi = DictionaryApi(containerList=containerList, consolidate=True)
         parentD = dApi.getParentDictionary()
         #
@@ -79,7 +79,7 @@ class TestDictionary2DDLm():
 
             valList = dApi.getCategoryKeyList(category=catName)
             if len(valList) < 1:
-                self.__lfh.write("Missing caegory key for category %s\n" % catName)
+                print("Missing caegory key for category %s\n" % catName)
             else:
                 dc = DataCategory("category")
                 dc.appendAttribute("key_id")
@@ -222,7 +222,7 @@ class TestDictionary2DDLm():
                     dc.append(row)
                     iDef.append(dc)
 
-        myIo.writeFile(outputFilePath=Path("mmcif_pdbx_ddlm_auto.dic"), containerList=oCList)
+        myIo.writeFile(outputFilePath="mmcif_pdbx_ddlm_auto.dic", containerList=oCList)
 
     def _makeKeyItem(self, catName, attName, keyItemList, iDef):
         itemName = CifName.itemName(catName, attName)

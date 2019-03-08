@@ -28,18 +28,19 @@ class TestStarReader():
     def test_read_star_file(self, in_tmpdir, star_files_list):
         for fp in star_files_list:
             myIo = IoAdapter()
-            containerList = myIo.readFile(inputFilePath=fp)
-            print("container list is  %r\n" % ([(c.getName(), c.getType()) for c in containerList]))
+            containerList = myIo.readFile(inputFilePath=str(fp))
+            print("container list is  %r\n" % ([(c.getName(), c.getType()) 
+                                                for c in containerList]))
             for c in containerList:
                 c.setType('data')
             ofn = Path(fp.stem + '.cif')
-            ok = myIo.writeFile(outputFilePath=ofn, containerList=containerList[1:])
+            ok = myIo.writeFile(outputFilePath=str(ofn), containerList=containerList[1:])
             assert ok
 
     def test_read_write_star_file(self, in_tmpdir, star_files_list):
         for fp in star_files_list:
             myIo = IoAdapter()
-            containerList = myIo.readFile(inputFilePath=fp)
+            containerList = myIo.readFile(inputFilePath=str(fp))
             #
             # containerList is a flat list of containers in the order parsed.
             #
@@ -82,5 +83,5 @@ class TestStarReader():
                     for ii, row in enumerate(rowL):
                         print("  %4d  %r\n" % (ii, row))
             ofn = Path(fp.stem + '.out')
-            ok = myIo.writeFile(outputFilePath=ofn, containerList=containerList, useStopTokens=True)
+            ok = myIo.writeFile(outputFilePath=str(ofn), containerList=containerList, useStopTokens=True)
             assert ok

@@ -24,7 +24,7 @@ __license__ = "Apache 2.0"
 class TestPdbxWriter():
     __slots__ = ()
 
-    @pytest.fixture(scope = 'class')
+    @pytest.fixture()
     def writer_paths(self, test_files, in_tmpdir):
         return dict(pathPdbxDataFile = test_files / "1kip.cif", 
                     pathBigPdbxDataFile = test_files / "1ffk.cif", 
@@ -49,7 +49,7 @@ class TestPdbxWriter():
         aCat.append((1, 2, 3, 4, '5', 6, 7))
         curContainer.append(aCat)
         myDataList.append(curContainer)
-        with open(writer_paths['pathOutputFile1'], "w") as ofh:
+        with open(str(writer_paths['pathOutputFile1']), "w") as ofh:
             pdbxW = PdbxWriter(ofh)
             pdbxW.setAlignmentFlag(flag=True)
             pdbxW.write(myDataList)
@@ -73,14 +73,14 @@ class TestPdbxWriter():
         aCat.append((1, 2, 3, 4, 5, 6, 7))
         curContainer.append(aCat)
         myDataList.append(curContainer)
-        with open(writer_paths['pathOutputFile1'], "w") as ofh:
+        with open(str(writer_paths['pathOutputFile1']), "w") as ofh:
             pdbxW = PdbxWriter(ofh)
             pdbxW.write(myDataList)
         #
         # Read and update the data -
         #
         myDataList = []
-        with open(writer_paths['pathOutputFile1'], "r") as ifh:
+        with open(str(writer_paths['pathOutputFile1']), "r") as ifh:
             pRd = PdbxReader(ifh)
             pRd.read(myDataList)
         #
@@ -91,18 +91,18 @@ class TestPdbxWriter():
         for iRow in range(0, myCat.getRowCount()):
             myCat.setValue('some value', 'ref_mon_id', iRow)
             myCat.setValue(100, 'ref_mon_num', iRow)
-        with open(writer_paths['pathOutputFile2'], "w") as ofh:
+        with open(str(writer_paths['pathOutputFile2']), "w") as ofh:
             pdbxW = PdbxWriter(ofh)
             pdbxW.write(myDataList)
         assert len(myDataList) == 1
 
     def test_read_write_data_file(self, writer_paths):
         myDataList = []
-        with open(writer_paths['pathPdbxDataFile'], "r") as ifh:
+        with open(str(writer_paths['pathPdbxDataFile']), "r") as ifh:
             pRd = PdbxReader(ifh)
             pRd.read(myDataList)
 
-        with open(writer_paths['pathOutputFile1'], "w") as ofh:
+        with open(str(writer_paths['pathOutputFile1']), "w") as ofh:
             pWr = PdbxWriter(ofh)
             pWr.write(myDataList)
 

@@ -6,6 +6,8 @@ from __future__ import absolute_import, print_function
 
 import pytest
 
+from operator import itemgetter
+
 try:
     from pathlib import Path
 except ImportError:
@@ -14,7 +16,6 @@ except ImportError:
 from mmcif.api.DictionaryApi import DictionaryApi
 from mmcif.api.PdbxContainers import CifName
 from mmcif.io.IoAdapterPy import IoAdapterPy as IoAdapter
-from mmcif.io.PdbxExceptions import PdbxError, SyntaxError
 
 __docformat__ = "restructuredtext en"
 __author__ = "Igor Petrik"
@@ -91,16 +92,16 @@ class TestDictionayMarkdown():
         #
         return rL
 
-    @pytest.mar.parametrize('out_file_name, groupSelectList', 
-                            [('xfel_extension.md', ['xfel_group']),
-                             ('xfel_extension.md', ['diffrn_data_set_group'])])
+    @pytest.mark.parametrize('out_file_name, groupSelectList', 
+                             [('xfel_extension.md', ['xfel_group']),
+                              ('xfel_extension.md', ['diffrn_data_set_group'])])
     def test_markup_category_group(self, in_tmpdir, test_files, out_file_name, 
                                    groupSelectList):
         oFile = test_files / out_file_name
         rL = []
 
         myIo = IoAdapter()
-        containerList = myIo.readFile(test_files / "mmcif_pdbx_v5_next.dic")
+        containerList = myIo.readFile(str(test_files / "mmcif_pdbx_v5_next.dic"))
         dApi = DictionaryApi(containerList=containerList, consolidate=True)
         #
         groupList = dApi.getCategoryGroups()
@@ -227,6 +228,6 @@ class TestDictionayMarkdown():
                             rL.append("| %s | %s |" % (tup[0], tup[1]))
                         rL.append("")
                     rL.append("")
-        with open(oFile, 'w') as ofh:
+        with open(str(oFile), 'w') as ofh:
             ofh.write('\n'.join(rL))
 

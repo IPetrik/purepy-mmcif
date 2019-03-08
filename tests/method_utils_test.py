@@ -24,7 +24,7 @@ __license__ = "Apache 2.0"
 class TestMethodUtils():
     __slots__ = ()
 
-    @pytest.fixture(scope = 'class')
+    @pytest.fixture()
     def test_paths(self, test_files, in_tmpdir):
         paths = dict(pathPdbxDataFile = test_files / "1kip.cif", 
                      pathPdbxDictFile = test_files / "mmcif_pdbx_v5_next_w_methods.dic", 
@@ -33,7 +33,7 @@ class TestMethodUtils():
 
     def test_get_dictionary_methods(self, test_paths):
         myIo = IoAdapter()
-        dictContainerList = myIo.readFile(inputFilePath=test_paths['pathPdbxDictFile'])
+        dictContainerList = myIo.readFile(inputFilePath=str(test_paths['pathPdbxDictFile']))
         mU = MethodUtils(dictContainerList=dictContainerList)
         mU.dumpMethods(fh=sys.stdout)
         mD = mU.getMethods()
@@ -41,16 +41,16 @@ class TestMethodUtils():
 
     def test_invoke_dictionary_methods(self, test_paths):
         myIo = IoAdapter()
-        dictContainerList = myIo.readFile(inputFilePath=test_paths['pathPdbxDictFile'])
+        dictContainerList = myIo.readFile(inputFilePath=str(test_paths['pathPdbxDictFile']))
         mU = MethodUtils(dictContainerList=dictContainerList)
 
-        dataContainerList = myIo.readFile(inputFilePath=test_paths['pathPdbxDataFile'])
+        dataContainerList = myIo.readFile(inputFilePath=str(test_paths['pathPdbxDataFile']))
         mU.setDataContainerList(dataContainerList=dataContainerList)
 
         mU.invokeMethods()
         print("Write data file after invoking methods")
         dataContainerList = mU.getDataContainerList()
-        ok = myIo.writeFile(outputFilePath=test_paths['pathOutFile'], 
+        ok = myIo.writeFile(outputFilePath=str(test_paths['pathOutFile']), 
                             containerList=dataContainerList)
         assert ok
 

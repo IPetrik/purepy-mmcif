@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Test cases for data category container classes.
 
@@ -58,7 +60,7 @@ class TestDataCategory():
 
         inputs['rowListUnicode'] = []
         inputs['testRowUnicode'] = [u'someData', 100222, 1.00056, 
-                                    u'abcdĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨxyz']
+                                    u'abcdÄ†Ä‡ÄˆÄ‰ÄŠÄ‹ÄŒÄ�ÄŽÄ�Ä�Ä‘Ä’Ä“Ä”Ä•Ä–Ä—Ä˜Ä™ÄšÄ›ÄœÄ�ÄžÄŸÄ Ä¡Ä¢Ä£Ä¤Ä¥Ä¦Ä§Ä¨xyz']
         for i in range(1, 10):
             tr = [i] + inputs['testRowUnicode']
             inputs['rowListUnicode'].append(tr)
@@ -67,7 +69,7 @@ class TestDataCategory():
         inputs['attributeListMiss'] = ['colOrd', 'colA', 'colB', 'colNone', 
                                        'colM1', 'colM2', 'colC', 'colD']
         inputs['testRowUnicodeMiss'] = [u'someData', 100222, None, '?', '.', 
-                                        u'abcdĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨxyz', 
+                                        u'abcdÄ†Ä‡ÄˆÄ‰ÄŠÄ‹ÄŒÄ�ÄŽÄ�Ä�Ä‘Ä’Ä“Ä”Ä•Ä–Ä—Ä˜Ä™ÄšÄ›ÄœÄ�ÄžÄŸÄ Ä¡Ä¢Ä£Ä¤Ä¥Ä¦Ä§Ä¨xyz', 
                                         234.2345]
         for i in range(1, 10):
             tr = [i] + inputs['testRowUnicodeMiss']
@@ -262,7 +264,7 @@ class TestDataCategory():
     def test_get_select_values(self, category_data):
         dcU = DataCategory('A', category_data['attributeListMiss'], category_data['rowListUnicodeMiss'])
         #
-        assert dcU.getFirstValueOrDefault(['colNone', 'colM1', 'colM2', 'colC'], rowIndex=0, defaultValue='default') == u'abcdĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨxyz'
+        assert dcU.getFirstValueOrDefault(['colNone', 'colM1', 'colM2', 'colC'], rowIndex=0, defaultValue='default') == u'abcdÄ†Ä‡ÄˆÄ‰ÄŠÄ‹ÄŒÄ�ÄŽÄ�Ä�Ä‘Ä’Ä“Ä”Ä•Ä–Ä—Ä˜Ä™ÄšÄ›ÄœÄ�ÄžÄŸÄ Ä¡Ä¢Ä£Ä¤Ä¥Ä¦Ä§Ä¨xyz'
         assert dcU.getFirstValueOrDefault(['colNone', 'colM1', 'colM2'], rowIndex=0, defaultValue='default') == 'default'
 
     @pytest.mark.category_subclass
@@ -327,7 +329,7 @@ class TestDataCategory():
                 assert tup[1] == True
         #
         dcX = DataCategory('A', category_data['attributeList'], category_data['rowListUnicode'])
-        assert dcX.setValue(u'134ĆćĈĉĊċČčĎďĐđĒēĠġĢģĤĥĦħĨxyz', attributeName='colD', rowIndex=dcX.getRowCount() - 2)
+        assert dcX.setValue(u'134Ä†Ä‡ÄˆÄ‰ÄŠÄ‹ÄŒÄ�ÄŽÄ�Ä�Ä‘Ä’Ä“Ä Ä¡Ä¢Ä£Ä¤Ä¥Ä¦Ä§Ä¨xyz', attributeName='colD', rowIndex=dcX.getRowCount() - 2)
         tupL = dcU.cmpAttributeValues(dcX)
         for tup in tupL:
             if tup[0] in ['colD']:

@@ -31,7 +31,7 @@ class TestPdbxReader():
 
     def test_read_small_data_file(self, reader_paths):
         myDataList = []
-        ifh = open(reader_paths['pathPdbxDataFile'], "r")
+        ifh = open(str(reader_paths['pathPdbxDataFile']), "r")
         pRd = PdbxReader(ifh)
         pRd.read(myDataList)
         ifh.close()
@@ -40,7 +40,7 @@ class TestPdbxReader():
 
     def test_read_big_data_file(self, reader_paths):
         myDataList = []
-        ifh = open(reader_paths['pathBigPdbxDataFile'], "r")
+        ifh = open(str(reader_paths['pathBigPdbxDataFile']), "r")
         pRd = PdbxReader(ifh)
         pRd.read(myDataList)
         ifh.close()
@@ -48,7 +48,7 @@ class TestPdbxReader():
 
     def testReadSFDataFile(self, reader_paths):
         myContainerList = []
-        ifh = open(reader_paths['pathSFDataFile'], "r")
+        ifh = open(str(reader_paths['pathSFDataFile']), "r")
         pRd = PdbxReader(ifh)
         pRd.read(myContainerList)
         c0 = myContainerList[0]

@@ -24,7 +24,7 @@ __license__ = "Apache 2.0"
 class TestIoAdapter():
     __slots__ = ()
     
-    @pytest.fixture(scope = 'class')
+    @pytest.fixture()
     def io_data(self, test_files, in_tmpdir):
         inputs = {}
 
@@ -64,9 +64,9 @@ class TestIoAdapter():
                               ('pathQuotesPdbxDataFile', True)])
     def testFileReader(self, io_data, fp_key, enforceAscii):
         io = IoAdapter(raiseExceptions=True)
-        containerList = io.readFile(io_data[fp_key], 
+        containerList = io.readFile(str(io_data[fp_key]), 
                                     enforceAscii=enforceAscii, 
-                                    outDirPath=io_data['pathOutputDir'])
+                                    outDirPath=str(io_data['pathOutputDir']))
         print ("Read %d data blocks" % len(containerList))
         assert len(containerList) == 1
 
@@ -74,8 +74,8 @@ class TestIoAdapter():
                              ['pathPdbxDictFile', 'pathPdbxDictFile'])
     def test_dict_reader(self, io_data, fp_key):
         io = IoAdapter(raiseExceptions=True)
-        containerList = io.readFile(io_data[fp_key], enforceAscii=False, 
-                                    outDirPath=io_data['pathOutputDir'])
+        containerList = io.readFile(str(io_data[fp_key]), enforceAscii=False, 
+                                    outDirPath=str(io_data['pathOutputDir']))
         print("Read %d data blocks" % len(containerList))
         assert len(containerList) > io_data['testBlockCount']
 
@@ -85,8 +85,8 @@ class TestIoAdapter():
         io = IoAdapter(raiseExceptions=True)
         print (io_data)
         with pytest.raises(SyntaxError):
-            io.readFile(io_data[fp_key], enforceAscii=False, 
-                        outDirPath=io_data['pathOutputDir'])
+            io.readFile(str(io_data[fp_key]), enforceAscii=False, 
+                        outDirPath=str(io_data['pathOutputDir']))
 
     @pytest.mark.parametrize('fp_key, expected_exc, enforceAscii', 
                              [('pathMissingFile', PdbxError, True),])
@@ -94,9 +94,9 @@ class TestIoAdapter():
                                         enforceAscii):
         with pytest.raises(expected_exc):
             io = IoAdapter(raiseExceptions=True, readEncodingErrors='ignore')
-            containerList = io.readFile(io_data[fp_key], 
+            containerList = io.readFile(str(io_data[fp_key]), 
                                         enforceAscii=enforceAscii, 
-                                        outDirPath=io_data['pathOutputDir'])
+                                        outDirPath=str(io_data['pathOutputDir']))
             print ("Containerlist length %d " % len(containerList))
 
     @pytest.mark.parametrize('ifp_key, ofp_key, enforceAscii', 
@@ -107,9 +107,9 @@ class TestIoAdapter():
                               ('pathCharRefPdbxFile', 'pathOutputCharRefPdbxFile', False)])
     def test_file_reader_writer(self, io_data, ifp_key, ofp_key, enforceAscii):
         io = IoAdapter(raiseExceptions=True, useCharRefs=enforceAscii)
-        containerList = io.readFile(io_data[ifp_key])
+        containerList = io.readFile(str(io_data[ifp_key]))
         print ("Read %d data blocks" % len(containerList))
-        ok = io.writeFile(io_data[ofp_key], containerList=containerList, 
+        ok = io.writeFile(str(io_data[ofp_key]), containerList=containerList, 
                           enforceAscii=enforceAscii)
         assert ok
 
@@ -118,12 +118,12 @@ class TestIoAdapter():
                                 ('pathBigPdbxDataFile', 'pathOutputPdbxFileExclude', ['atom_site'], True)])
     def test_file_reader_writer_select(self, io_data, ifp_key, ofp_key, selectList, excludeFlag):
         io = IoAdapter(raiseExceptions=False, useCharRefs=True)
-        containerList = io.readFile(io_data[ifp_key], enforceAscii=True, 
+        containerList = io.readFile(str(io_data[ifp_key]), enforceAscii=True, 
                                     selectList=selectList, 
                                     excludeFlag=excludeFlag, 
-                                    outDirPath=io_data['pathOutputDir'])
+                                    outDirPath=str(io_data['pathOutputDir']))
         print ("Read %d data blocks" % len(containerList))
-        ok = io.writeFile(io_data[ofp_key], containerList=containerList, 
+        ok = io.writeFile(str(io_data[ofp_key]), containerList=containerList, 
                           enforceAscii=True)
         assert ok
 

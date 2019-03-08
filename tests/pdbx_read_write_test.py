@@ -26,7 +26,7 @@ __license__ = "Apache 2.0"
 class TestPdbxReadWrite():
     __slots__ = ()
 
-    @pytest.fixture(scope = 'class')
+    @pytest.fixture()
     def rw_data(self, test_files, in_tmpdir):
         data = dict(pathPdbxDataFile = test_files / "specialTestFile.cif", 
                     pathBigPdbxDataFile = test_files / "1ffk.cif",
@@ -35,7 +35,7 @@ class TestPdbxReadWrite():
                     pathOutputFile3 = Path("testOutputDataFileStopToken3.cif"),
                     pathOutputFile4 = Path("testOutputDataFile4.cif"),
                     pathOutputFile5 = Path("testOutputDataFile5.cif"),
-                    pathTestFile = test_files / "test_single_row.cif",
+                    pathTestFile = test_files / "testSingleRow.cif",
                     pathTestFileStop = test_files / "testFileWithStopTokens.cif")
         return data
 
@@ -63,7 +63,7 @@ class TestPdbxReadWrite():
             row = bCat.getRow(0)
             print("----ROW %r\n" % row)
 
-            with open(rw_data['pathOutputFile2'], "w") as ofh:
+            with open(str(rw_data['pathOutputFile2']), "w") as ofh:
                 myDataList.append(curContainer)
                 pdbxW = PdbxWriter(ofh)
                 pdbxW.write(myDataList)
@@ -72,10 +72,9 @@ class TestPdbxReadWrite():
 
     def test_single_row_file(self, rw_data):
             myDataList = []
-            ifh = open(rw_data['pathTestFile'], "r")
-            pRd = PdbxReader(ifh)
-            pRd.read(myDataList)
-            ifh.close()
+            with open(str(rw_data['pathTestFile']), "r") as ifh:
+                pRd = PdbxReader(ifh)
+                pRd.read(myDataList)
 
             myBlock = myDataList[0]
             myCat = myBlock.getObj('symmetry')
@@ -85,7 +84,7 @@ class TestPdbxReadWrite():
             #
             # myCat.dumpIt()
 
-            with open(rw_data['pathOutputFile2'], "w") as ofh:
+            with open(str(rw_data['pathOutputFile2']), "w") as ofh:
                 pdbxW = PdbxWriter(ofh)
                 pdbxW.write(myDataList)
 
@@ -113,13 +112,13 @@ class TestPdbxReadWrite():
 
             myContainerList = []
             myContainerList.append(curContainer)
-            ofh = open(fn, "w")
+            ofh = open(str(fn), "w")
             pdbxW = PdbxWriter(ofh)
             pdbxW.write(myContainerList)
             ofh.close()
 
             myContainerList = []
-            ifh = open(fn, "r")
+            ifh = open(str(fn), "r")
             pRd = PdbxReader(ifh)
             pRd.read(myContainerList)
             ifh.close()
@@ -150,7 +149,7 @@ class TestPdbxReadWrite():
             curContainer.append(aCat)
 
             myDataList.append(curContainer)
-            with open(rw_data['pathOutputFile1'], "w") as ofh:
+            with open(str(rw_data['pathOutputFile1']), "w") as ofh:
                 pdbxW = PdbxWriter(ofh)
                 pdbxW.write(myDataList)
             assert len(myDataList) == 1
@@ -174,13 +173,13 @@ class TestPdbxReadWrite():
 
             curContainer.append(aCat)
             myDataList.append(curContainer)
-            ofh = open(rw_data['pathOutputFile1'], "w")
+            ofh = open(str(rw_data['pathOutputFile1']), "w")
             pdbxW = PdbxWriter(ofh)
             pdbxW.write(myDataList)
             ofh.close()
 
             myDataList = []
-            ifh = open(rw_data['pathOutputFile1'], "r")
+            ifh = open(str(rw_data['pathOutputFile1']), "r")
             pRd = PdbxReader(ifh)
             pRd.read(myDataList)
             ifh.close()
@@ -190,7 +189,7 @@ class TestPdbxReadWrite():
                 myCat.setValue('some value', 'ref_mon_id', iRow)
                 myCat.setValue(100, 'ref_mon_num', iRow)
 
-            with open(rw_data['pathOutputFile2'], "w") as ofh:
+            with open(str(rw_data['pathOutputFile2']), "w") as ofh:
                 pdbxW = PdbxWriter(ofh)
                 pdbxW.write(myDataList)
 
@@ -198,7 +197,7 @@ class TestPdbxReadWrite():
 
     def test_read_data_file(self, rw_data):
             myDataList = []
-            ifh = open(rw_data['pathPdbxDataFile'], "r")
+            ifh = open(str(rw_data['pathPdbxDataFile']), "r")
             pRd = PdbxReader(ifh)
             pRd.read(myDataList)
             ifh.close()
@@ -206,11 +205,11 @@ class TestPdbxReadWrite():
 
     def test_read_write_data_file(self, rw_data):
             myDataList = []
-            with open(rw_data['pathPdbxDataFile'], "r") as ifh:
+            with open(str(rw_data['pathPdbxDataFile']), "r") as ifh:
                 pRd = PdbxReader(ifh)
                 pRd.read(myDataList)
 
-            with open(rw_data['pathOutputFile1'], "w") as ofh:
+            with open(str(rw_data['pathOutputFile1']), "w") as ofh:
                 pWr = PdbxWriter(ofh)
                 pWr.write(myDataList)
             assert len(myDataList) == 1
@@ -280,7 +279,7 @@ class TestPdbxReadWrite():
         ifn = rw_data['pathBigPdbxDataFile']
         ofn = rw_data['pathOutputFile2']
         myContainerList = []
-        with open(ifn, "r") as ifh:
+        with open(str(ifn), "r") as ifh:
             pRd = PdbxReader(ifh)
             pRd.read(myContainerList)
         #
@@ -299,18 +298,18 @@ class TestPdbxReadWrite():
                     dcObj.setValue(dsId, attributeName='id', rowIndex=0)
 
         #
-        with open(ofn, "w") as ofh:
+        with open(str(ofn), "w") as ofh:
             pWr = PdbxWriter(ofh)
             pWr.write(myContainerList)
         assert len(myContainerList) == 1
 
     def test_read_write_data_file_stop(self, rw_data):
         myDataList = []
-        with open(rw_data['pathTestFileStop'], "r") as ifh:
+        with open(str(rw_data['pathTestFileStop']), "r") as ifh:
             pRd = PdbxReader(ifh)
             pRd.read(myDataList)
 
-        with open(rw_data['pathOutputFile3'], "w") as ofh:
+        with open(str(rw_data['pathOutputFile3']), "w") as ofh:
             pWr = PdbxWriter(ofh)
             pWr.write(myDataList)
         assert len(myDataList) == 1
@@ -335,13 +334,13 @@ class TestPdbxReadWrite():
         #
         myContainerList = []
         myContainerList.append(curContainer)
-        ofh = open(fn, "w")
+        ofh = open(str(fn), "w")
         pdbxW = PdbxWriter(ofh)
         pdbxW.write(myContainerList)
         ofh.close()
 
         myContainerList = []
-        ifh = open(fn, "r")
+        ifh = open(str(fn), "r")
         pRd = PdbxReader(ifh)
         pRd.read(myContainerList)
         ifh.close()
