@@ -10,7 +10,7 @@ Download the library source software from the project repository:
 
 ```bash
 
-git clone  --recurse-submodules  https://github.com/ipetrik/purepy-mmcif.git
+git clone https://github.com/ipetrik/purepy-mmcif.git
 
 ```
 

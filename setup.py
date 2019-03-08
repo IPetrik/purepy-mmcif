@@ -1,25 +1,17 @@
-# File: setup.py
-# Date: 17-Dec-2017
-#
-# Update:  17-Jan-2018 jdw - resolve python virtual env issues with Tox.
-#           8-Aug-2018 jdw - add py3.7
-#
-import re
+# Copyright 2009-2019 John Westbrook (RCSB)
+# Copyright 2019 Igor Petrik
 
 from setuptools import find_packages, setup
 
 thisPackage = 'purepy-mmcif'
 
-with open('mmcif/__init__.py', 'r') as fd:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-                        fd.read(), re.MULTILINE).group(1)
-
-if not version:
-    raise RuntimeError('Cannot find version information')
-
 setup(
     name=thisPackage,
-    version=version,
+    #version=version,
+
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
+
     description='A python-only fork of the RCSB mmCIF Core Access Library',
     long_description="See:  README.md",
     author='Igor Petrik',
@@ -36,7 +28,6 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7'
     ),
@@ -57,13 +48,5 @@ setup(
         'test': ['coverage'],
     },
 
-    # Added for
-    command_options={
-        'build_sphinx': {
-            'project': ('setup.py', thisPackage),
-            'version': ('setup.py', version),
-            'release': ('setup.py', version)
-        }
-    },
     zip_safe=False,
 )

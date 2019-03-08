@@ -97,7 +97,7 @@ class TestDictionayMarkdown():
                               ('xfel_extension.md', ['diffrn_data_set_group'])])
     def test_markup_category_group(self, in_tmpdir, test_files, out_file_name, 
                                    groupSelectList):
-        oFile = test_files / out_file_name
+        oFile = out_file_name
         rL = []
 
         myIo = IoAdapter()
