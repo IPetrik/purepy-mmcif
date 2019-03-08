@@ -28,13 +28,13 @@ Optionally, run test suite using the Tox test runner.
 
    tox
 
-Installation is via the program [pip](https://pypi.python.org/pypi/pip).
+Installation is via the program `pip <https://pypi.python.org/pypi/pip>`_.
 
 .. code-block:: bash
 
    pip install .
 
-To generate API documentation using [Sphinx](http://www.sphinx-doc.org/):
+To generate API documentation using `Sphinx <http://www.sphinx-doc.org/>`_:
 
 .. code-block:: bash
 

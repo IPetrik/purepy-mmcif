@@ -1,6 +1,8 @@
 test-output/
 /test.cfg
 
+.coveralls.yml
+
 # pydev
 .project
 .pydevproject
